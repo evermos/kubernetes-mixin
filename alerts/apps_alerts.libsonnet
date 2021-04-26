@@ -210,7 +210,7 @@
             expr: |||
               (
                 time() - kube_cronjob_next_schedule_time{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s} > 3600
-              ) * on(namespace, cronjob) group_left(label_evm_owner, label_evm_alerChannel) kube_cronjob_labels
+              ) * on(namespace, cronjob) group_left(label_evm_owner, label_evm_alertChannel) kube_cronjob_labels
             ||| % $._config,
             'for': '1h',
             labels: {
@@ -223,7 +223,9 @@
           {
             alert: 'KubeJobCompletion',
             expr: |||
-              kube_job_spec_completions{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s} - kube_job_status_succeeded{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}  > 0
+              (
+                kube_job_spec_completions{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s} - kube_job_status_succeeded{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}  > 0
+              ) * on(namespace, job_name) group_left(label_evm_owner, label_evm_alertChannel) kube_job_labels
             ||| % $._config,
             'for': '12h',
             labels: {
@@ -236,7 +238,9 @@
           {
             alert: 'KubeJobFailed',
             expr: |||
-              kube_job_failed{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}  > 0
+              (
+                kube_job_failed{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}  > 0
+              ) * on(namespace, job_name) group_left(label_evm_owner, label_evm_alertChannel) kube_job_labels
             ||| % $._config,
             'for': '15m',
             labels: {
