@@ -12,7 +12,9 @@
         rules: [
           {
             expr: |||
-              rate(kube_pod_container_status_restarts_total{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}[5m]) * 60 * 5 > 0
+              (
+                rate(kube_pod_container_status_restarts_total{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}[5m]) * 60 * 5 > 0
+              ) * on(namespace, pod) group_left(label_evm_owner, label_evm_alertChannel) kube_pod_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
@@ -29,13 +31,15 @@
             // label exists for 2 values. This avoids "many-to-many matching
             // not allowed" errors when joining with kube_pod_status_phase.
             expr: |||
-              sum by (namespace, pod) (
-                max by(namespace, pod) (
-                  kube_pod_status_phase{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, phase=~"Pending|Unknown"}
-                ) * on(namespace, pod) group_left(owner_kind) topk by(namespace, pod) (
-                  1, max by(namespace, pod, owner_kind) (kube_pod_owner{owner_kind!="Job"})
-                )
-              ) > 0
+              (
+                sum by (namespace, pod) (
+                  max by(namespace, pod) (
+                    kube_pod_status_phase{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, phase=~"Pending|Unknown"}
+                  ) * on(namespace, pod) group_left(owner_kind) topk by(namespace, pod) (
+                    1, max by(namespace, pod, owner_kind) (kube_pod_owner{owner_kind!="Job"})
+                  )
+                ) > 0
+              ) * on(namespace, pod) group_left(label_evm_owner, label_evm_alertChannel) kube_pod_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
@@ -48,9 +52,11 @@
           },
           {
             expr: |||
-              kube_deployment_status_observed_generation{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
-                !=
-              kube_deployment_metadata_generation{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              (
+                kube_deployment_status_observed_generation{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+                  !=
+                kube_deployment_metadata_generation{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              ) * on(namespace, deployment) group_left(label_evm_owner, label_evm_alertChannel) kube_deployment_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
@@ -64,14 +70,16 @@
           {
             expr: |||
               (
-                kube_deployment_spec_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
-                  !=
-                kube_deployment_status_replicas_available{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
-              ) and (
-                changes(kube_deployment_status_replicas_updated{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}[5m])
-                  ==
-                0
-              )
+                (
+                  kube_deployment_spec_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+                    !=
+                  kube_deployment_status_replicas_available{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+                ) and (
+                  changes(kube_deployment_status_replicas_updated{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}[5m])
+                    ==
+                  0
+                )
+              ) * on(namespace, deployment) group_left(label_evm_owner, label_evm_alertChannel) kube_deployment_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
@@ -200,7 +208,9 @@
           {
             alert: 'KubeCronJobRunning',
             expr: |||
-              time() - kube_cronjob_next_schedule_time{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s} > 3600
+              (
+                time() - kube_cronjob_next_schedule_time{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s} > 3600
+              ) * on(namespace, cronjob) group_left(label_evm_owner, label_evm_alertChannel) kube_cronjob_labels
             ||| % $._config,
             'for': '1h',
             labels: {
@@ -213,7 +223,9 @@
           {
             alert: 'KubeJobCompletion',
             expr: |||
-              kube_job_spec_completions{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s} - kube_job_status_succeeded{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}  > 0
+              (
+                kube_job_spec_completions{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s} - kube_job_status_succeeded{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}  > 0
+              ) * on(namespace, job_name) group_left(label_evm_owner, label_evm_alertChannel) kube_job_labels
             ||| % $._config,
             'for': '12h',
             labels: {
@@ -226,7 +238,9 @@
           {
             alert: 'KubeJobFailed',
             expr: |||
-              kube_job_failed{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}  > 0
+              (
+                kube_job_failed{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}  > 0
+              ) * on(namespace, job_name) group_left(label_evm_owner, label_evm_alertChannel) kube_job_labels
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -238,11 +252,13 @@
           },
           {
             expr: |||
-              (kube_hpa_status_desired_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
-                !=
-              kube_hpa_status_current_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s})
-                and
-              changes(kube_hpa_status_current_replicas[15m]) == 0
+              (
+                (kube_hpa_status_desired_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+                  !=
+                kube_hpa_status_current_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s})
+                  and
+                changes(kube_hpa_status_current_replicas[15m]) == 0
+              ) * on(namespace, hpa) group_left(label_evm_owner, label_evm_alertChannel) kube_hpa_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
@@ -255,9 +271,11 @@
           },
           {
             expr: |||
-              kube_hpa_status_current_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
-                ==
-              kube_hpa_spec_max_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              (
+                kube_hpa_status_current_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+                  ==
+                kube_hpa_spec_max_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              ) * on(namespace, hpa) group_left(label_evm_owner, label_evm_alertChannel) kube_hpa_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
