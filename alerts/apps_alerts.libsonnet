@@ -271,9 +271,11 @@
           },
           {
             expr: |||
-              kube_hpa_status_current_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
-                ==
-              kube_hpa_spec_max_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              (
+                kube_hpa_status_current_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+                  ==
+                kube_hpa_spec_max_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              ) * on(namespace, hpa) group_left(label_evm_owner, label_evm_alertChannel) kube_hpa_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
