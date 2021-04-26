@@ -12,7 +12,9 @@
         rules: [
           {
             expr: |||
-              rate(kube_pod_container_status_restarts_total{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}[10m]) * 60 * 5 > 0
+              (
+                rate(kube_pod_container_status_restarts_total{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}[10m]) * 60 * 5 > 0
+              ) * on(namespace, pod) group_left(label_evm_owner, label_alertChannel) kube_pod_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
@@ -30,13 +32,15 @@
             // label exists for 2 values. This avoids "many-to-many matching
             // not allowed" errors when joining with kube_pod_status_phase.
             expr: |||
-              sum by (namespace, pod) (
-                max by(namespace, pod) (
-                  kube_pod_status_phase{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, phase=~"Pending|Unknown"}
-                ) * on(namespace, pod) group_left(owner_kind) topk by(namespace, pod) (
-                  1, max by(namespace, pod, owner_kind) (kube_pod_owner{owner_kind!="Job"})
-                )
-              ) > 0
+              (
+                sum by (namespace, pod) (
+                  max by(namespace, pod) (
+                    kube_pod_status_phase{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s, phase=~"Pending|Unknown"}
+                  ) * on(namespace, pod) group_left(owner_kind) topk by(namespace, pod) (
+                    1, max by(namespace, pod, owner_kind) (kube_pod_owner{owner_kind!="Job"})
+                  )
+                ) > 0
+              ) * on(namespace, pod) group_left(label_evm_owner, label_alertChannel) kube_pod_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
@@ -50,9 +54,11 @@
           },
           {
             expr: |||
-              kube_deployment_status_observed_generation{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
-                !=
-              kube_deployment_metadata_generation{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              (
+                kube_deployment_status_observed_generation{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+                  !=
+                kube_deployment_metadata_generation{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              ) * on(namespace, deployment) group_left(label_evm_owner, label_evm_alertChannel) kube_deployment_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
