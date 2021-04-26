@@ -208,7 +208,9 @@
           {
             alert: 'KubeCronJobRunning',
             expr: |||
-              time() - kube_cronjob_next_schedule_time{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s} > 3600
+              (
+                time() - kube_cronjob_next_schedule_time{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s} > 3600
+              ) * on(namespace, cronjob) group_left(label_evm_owner, label_evm_alerChannel) kube_cronjob_labels
             ||| % $._config,
             'for': '1h',
             labels: {
