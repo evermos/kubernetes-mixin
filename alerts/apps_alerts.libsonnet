@@ -166,7 +166,9 @@
           },
           {
             expr: |||
-              sum by (namespace, pod, container) (kube_pod_container_status_waiting_reason{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}) > 0
+              (
+                sum by (namespace, pod, container) (kube_pod_container_status_waiting_reason{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}) > 0
+              ) * on(namespace, pod) group_left(label_evm_owner, label_evm_alertChannel) kube_pod_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
