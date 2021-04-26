@@ -12,7 +12,9 @@
         rules: [
           {
             expr: |||
-              rate(kube_pod_container_status_restarts_total{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}[5m]) * 60 * 5 > 0
+              (
+                rate(kube_pod_container_status_restarts_total{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}[5m]) * 60 * 5 > 0
+              ) * on(namespace, pod) group_left(label_evm_owner, label_evm_alertChannel) kube_pod_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
