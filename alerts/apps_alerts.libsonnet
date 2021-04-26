@@ -52,9 +52,11 @@
           },
           {
             expr: |||
-              kube_deployment_status_observed_generation{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
-                !=
-              kube_deployment_metadata_generation{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              (
+                kube_deployment_status_observed_generation{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+                  !=
+                kube_deployment_metadata_generation{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+              ) * on(namespace, deployment) group_left(label_evm_owner, label_evm_alertChannel) kube_deployment_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
