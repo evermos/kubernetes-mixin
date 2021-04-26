@@ -70,14 +70,16 @@
           {
             expr: |||
               (
-                kube_deployment_spec_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
-                  !=
-                kube_deployment_status_replicas_available{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
-              ) and (
-                changes(kube_deployment_status_replicas_updated{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}[5m])
-                  ==
-                0
-              )
+                (
+                  kube_deployment_spec_replicas{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+                    !=
+                  kube_deployment_status_replicas_available{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}
+                ) and (
+                  changes(kube_deployment_status_replicas_updated{%(prefixedNamespaceSelector)s%(kubeStateMetricsSelector)s}[5m])
+                    ==
+                  0
+                )
+              ) * on(namespace, deployment) group_left(label_evm_owner, label_evm_alertChannel) kube_deployment_labels
             ||| % $._config,
             labels: {
               severity: 'warning',
