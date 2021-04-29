@@ -33,7 +33,7 @@
             ||| % $._config,
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'Cluster has overcommitted CPU resource requests for Pods and cannot tolerate node failure.',
             },
@@ -52,7 +52,7 @@
             ||| % $._config,
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'Cluster has overcommitted memory resource requests for Pods and cannot tolerate node failure.',
             },
@@ -68,7 +68,7 @@
             ||| % $._config,
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'Cluster has overcommitted CPU resource requests for Namespaces.',
             },
@@ -84,7 +84,7 @@
             ||| % $._config,
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'Cluster has overcommitted memory resource requests for Namespaces.',
             },
@@ -101,7 +101,7 @@
             'for': '15m',
             labels: {
               severity: 'info',
-            },
+            } + $._config.evm.labels,
             annotations: {
               description: 'Namespace {{ $labels.namespace }} is using {{ $value | humanizePercentage }} of its {{ $labels.resource }} quota.',
               summary: 'Namespace quota is going to be full.',
@@ -118,7 +118,7 @@
             'for': '15m',
             labels: {
               severity: 'info',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'Namespace {{ $labels.namespace }} is using {{ $value | humanizePercentage }} of its {{ $labels.resource }} quota.',
             },
@@ -134,7 +134,7 @@
             'for': '15m',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               description: 'Namespace {{ $labels.namespace }} is using {{ $value | humanizePercentage }} of its {{ $labels.resource }} quota.',
               summary: 'Namespace quota has exceeded the limits.',
@@ -151,7 +151,7 @@
             'for': '15m',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: '{{ $value | humanizePercentage }} throttling of CPU in namespace {{ $labels.namespace }} for container {{ $labels.container }} in pod {{ $labels.pod }}.',
             },

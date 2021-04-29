@@ -16,7 +16,7 @@
             'for': '15m',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'There are {{ $value }} different semantic versions of Kubernetes components running.',
             },
@@ -35,7 +35,7 @@
             'for': '15m',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: "Kubernetes API server client '{{ $labels.job }}/{{ $labels.instance }}' is experiencing {{ $value | humanizePercentage }} errors.'",
             },
