@@ -15,7 +15,7 @@
             ||| % $._config,
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: '{{ $labels.node }} has been unready for more than 15 minutes.',
             },
@@ -29,7 +29,7 @@
             'for': '2m',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: '{{ $labels.node }} is unreachable and some workloads may be rescheduled.',
             },
@@ -45,7 +45,7 @@
             'for': '15m',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: "Kubelet '{{ $labels.node }}' is running at {{ $value | humanizePercentage }} of its Pod capacity.",
             },
@@ -58,7 +58,7 @@
             'for': '15m',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'The readiness status of node {{ $labels.node }} has changed {{ $value }} times in the last 15 minutes.',
             },
@@ -71,7 +71,7 @@
             'for': '5m',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'The Kubelet Pod Lifecycle Event Generator has a 99th percentile duration of {{ $value }} seconds on node {{ $labels.node }}.',
             },
@@ -84,7 +84,7 @@
             'for': '15m',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'Kubelet Pod startup 99th percentile latency is {{ $value }} seconds on node {{ $labels.node }}.',
             },

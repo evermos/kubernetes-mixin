@@ -86,5 +86,13 @@ local slo = import 'slo-libsonnet/slo.libsonnet';
     // This list of disk device names is referenced in various expressions.
     diskDevices: ['nvme.+', 'rbd.+', 'sd.+', 'vd.+', 'xvd.+', 'dm-.+', 'dasd.+'],
     diskDeviceSelector: 'device=~"%s"' % std.join('|', self.diskDevices),
+
+    // Config for evm specific configuration
+    evm: {
+      labels: {
+        label_evm_alertChannel: 'infra-alert-dev',
+        label_evm_owner: 'devops',
+      },
+    },
   },
 }

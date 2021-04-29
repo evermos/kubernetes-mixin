@@ -27,7 +27,7 @@
             'for': '1m',
             labels: {
               severity: 'critical',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'The PersistentVolume claimed by {{ $labels.persistentvolumeclaim }} in Namespace {{ $labels.namespace }} is only {{ $value | humanizePercentage }} free.',
             },
@@ -46,7 +46,7 @@
             'for': '1h',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'Based on recent sampling, the PersistentVolume claimed by {{ $labels.persistentvolumeclaim }} in Namespace {{ $labels.namespace }} is expected to fill up within four days. Currently {{ $value | humanizePercentage }} is available.',
             },
@@ -59,7 +59,7 @@
             'for': '5m',
             labels: {
               severity: 'critical',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'The persistent volume {{ $labels.persistentvolume }} has status {{ $labels.phase }}.',
             },

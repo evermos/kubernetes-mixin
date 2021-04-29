@@ -33,7 +33,7 @@ local utils = import 'utils.libsonnet';
               severity: w.severity,
               short: '%(short)s' % w,
               long: '%(long)s' % w,
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'The API server is burning too much error budget',
             },
@@ -67,7 +67,7 @@ local utils = import 'utils.libsonnet';
             'for': '5m',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'The API server has an abnormal latency of {{ $value }} seconds for {{ $labels.verb }} {{ $labels.resource }}.',
             },
@@ -82,7 +82,7 @@ local utils = import 'utils.libsonnet';
             'for': '10m',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'API server is returning errors for {{ $value | humanizePercentage }} of requests for {{ $labels.verb }} {{ $labels.resource }} {{ $labels.subresource }}.',
             },
@@ -94,7 +94,7 @@ local utils = import 'utils.libsonnet';
             ||| % $._config,
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'A client certificate used to authenticate to the apiserver is expiring in less than %s.' % (utils.humanizeSeconds($._config.certExpirationWarningSeconds)),
             },
@@ -106,7 +106,7 @@ local utils = import 'utils.libsonnet';
             ||| % $._config,
             labels: {
               severity: 'critical',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'A client certificate used to authenticate to the apiserver is expiring in less than %s.' % (utils.humanizeSeconds($._config.certExpirationCriticalSeconds)),
             },
@@ -118,7 +118,7 @@ local utils = import 'utils.libsonnet';
             ||| % $._config,
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'An aggregated API {{ $labels.name }}/{{ $labels.namespace }} has reported errors. The number of errors have increased for it in the past five minutes. High values indicate that the availability of the service changes too often.',
             },
@@ -131,7 +131,7 @@ local utils = import 'utils.libsonnet';
             'for': '5m',
             labels: {
               severity: 'warning',
-            },
+            } + $._config.evm.labels,
             annotations: {
               message: 'An aggregated API {{ $labels.name }}/{{ $labels.namespace }} is down. It has not been available at least for the past five minutes.',
             },
